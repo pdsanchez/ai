@@ -59,7 +59,9 @@ public class Main extends GeneticAlgorithm {
     }
 
     public static void main(String[] args) {
-        Main ga = new Main(128);
+        //Logger.getLogger(GeneticAlgorithm.class.getName()).setLevel(Level.OFF);
+                
+        Main ga = new Main(32);
         ga.setParentSelector(ParentSelector.TOURNAMENT);
         ga.setCrossoverSelector(CrossoverSelector.UNIFORM_CROSSOVER);
         ga.run();

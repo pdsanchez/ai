@@ -34,6 +34,8 @@ import es.pdsanchez.ai.ga.mutation.SwapMutation;
 import es.pdsanchez.ai.ga.selector.ParentSelectionInterface;
 import es.pdsanchez.ai.ga.selector.ParentSelectionByTournament;
 import es.pdsanchez.ai.ga.selector.ParentSelectionByRoulette;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The GeneticAlgorithm class is our main abstraction for managing the
@@ -56,6 +58,8 @@ import es.pdsanchez.ai.ga.selector.ParentSelectionByRoulette;
  */
 public abstract class GeneticAlgorithm {
 
+    public static final Logger LOG = Logger.getLogger(GeneticAlgorithm.class.getName());
+            
     // Default values
     public static final int DEFAULT_POPULATION_SIZE = 100;
     public static final double DEFAULT_MUTATION_RATE = 0.01;
@@ -114,7 +118,7 @@ public abstract class GeneticAlgorithm {
         }
     };
     
-    private int chromosomeLength;
+    private final int chromosomeLength;
 
     private int populationSize;
 
@@ -145,8 +149,10 @@ public abstract class GeneticAlgorithm {
     private ParentSelector parentSelector;
     private MutationSelector mutationSelector;
     private CrossoverSelector crossoverSelector;
-
-    private GeneticAlgorithm() {
+  
+    public GeneticAlgorithm(int chromosomeLength) {
+        this.chromosomeLength = chromosomeLength;
+        
         this.populationSize = DEFAULT_POPULATION_SIZE;
         this.mutationRate = DEFAULT_MUTATION_RATE;
         this.crossoverRate = DEFAULT_CROSSOVER_RATE;
@@ -156,11 +162,8 @@ public abstract class GeneticAlgorithm {
         this.parentSelector = ParentSelector.ROULETTE; // roulette by default
         this.mutationSelector = MutationSelector.BIT_FLIP_MUTATION; // bit flip by default
         this.crossoverSelector = CrossoverSelector.UNIFORM_CROSSOVER; // uniform crossover by default
-    }
-    
-    public GeneticAlgorithm(int chromosomeLength) {
-        this();
-        this.chromosomeLength = chromosomeLength;
+        
+        this.activeLogs();
     }
 
     /**
@@ -218,6 +221,16 @@ public abstract class GeneticAlgorithm {
      * @return the best individual found
      */
     public Individual run() {
+        if (LOG.isLoggable(Level.INFO)) {
+            String msg = "GA size {0} - chromosome {1}\n"
+                    + "ParentSelector: {2}\n"
+                    + "CrossoverSelector: {3} [rate: {4}]\n"
+                    + "MutationSelector: {5} [rate: {6}]";
+            Object[] params = {populationSize, chromosomeLength, parentSelector, 
+                crossoverSelector, crossoverRate, mutationSelector, mutationRate};
+            LOG.log(Level.INFO, msg, params);
+        }
+        
         // Initialize population
         Population population = this._initPopulation();
 
@@ -231,7 +244,7 @@ public abstract class GeneticAlgorithm {
         // Every genetic algorithm problem has different criteria for finishing.
         while (this.isTerminationConditionMet(population, generation) == false) {
             // Print fittest individual from population
-            System.out.println("Best solution: " + population.getFittest(0).toString());
+            LOG.log(Level.FINE, "Best solution: {0}", population.getFittest(0).toString());
 
             // Apply crossover
             population = this._crossoverPopulation(population);
@@ -246,10 +259,9 @@ public abstract class GeneticAlgorithm {
             generation++;
         }
 
-        // We're out of the loop now, which means we have a perfect solution on
-        // our hands
-        System.out.println("Found solution in " + generation + " generations");
-        System.out.println("Best solution: " + population.getFittest(0).toString());
+        // We have a perfect solution
+        LOG.log(Level.INFO, "Best solution [{0} generations]: {1}", 
+                new Object[]{generation, population.getFittest(0).toString()});
 
         return population.getFittest(0);
     }
@@ -431,4 +443,11 @@ public abstract class GeneticAlgorithm {
         this.crossoverSelector = crossoverSelector;
     }
 
+    public final void activeLogs() {
+        LOG.setLevel(Level.INFO);
+    }
+    
+    public final void disableLogs() {
+        LOG.setLevel(Level.OFF);
+    }
 }
