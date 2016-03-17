@@ -24,6 +24,9 @@
  */
 package es.pdsanchez.ai.ga;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * An "Individual" represents a single candidate solution. The core piece of
  * information about an individual is its "chromosome", which is an encoding of
@@ -75,6 +78,22 @@ public class Individual implements Comparable<Individual> {
         for (int gene = 0; gene < chromosomeLength; gene++) {
             int value = (0.5 < Math.random()) ? 1 : 0;
             this.setGene(gene, value);
+        }
+    }
+    
+    /**
+     * Implementing Fisher–Yates shuffle
+     */
+    public void shuffleChromosome() {
+        int chromosomeLength = this.chromosome.length;
+        
+        Random rnd = ThreadLocalRandom.current();
+        for (int i = chromosomeLength - 1; i > 0; i--) {
+            int index = rnd.nextInt(i + 1);
+            // Simple swap
+            int a = chromosome[index];
+            chromosome[index] = chromosome[i];
+            chromosome[i] = a;
         }
     }
 

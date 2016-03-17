@@ -7,8 +7,6 @@ package main.robot;
 
 import es.pdsanchez.ai.ga.GeneticAlgorithm;
 import es.pdsanchez.ai.ga.Individual;
-import es.pdsanchez.ai.ga.Population;
-import java.util.Random;
 
 /**
  *
@@ -99,19 +97,13 @@ public class RobotController extends GeneticAlgorithm {
     
     Maze[] mazes = {maze1, maze2, maze3, maze4, maze5};
 
+    public RobotController(int chromosomeLength) {
+        super(chromosomeLength);
+    }
+
     @Override
-    public Population initPopulation() {
-        int chromosomeLength = 100;
-        Population population = new Population(chromosomeLength);
-
-        for (int i = 0; i < chromosomeLength; i++) {
-            Individual individual = new Individual(128);
-            individual.randomizeBinaryChromosome();
-
-            population.setIndividual(i, individual);
-        }
-
-        return population;
+    public void populateChromosome(Individual individual) {
+        individual.randomizeBinaryChromosome();
     }
 
     @Override
@@ -136,7 +128,7 @@ public class RobotController extends GeneticAlgorithm {
     }
 
     public static void main(String[] args) {
-        RobotController rc = new RobotController();
+        RobotController rc = new RobotController(128);
         rc.setMaxGenerations(1000);
         rc.setParentSelector(ParentSelector.TOURNAMENT);
         rc.setCrossoverSelector(CrossoverSelector.TWO_POINT_CROSSOVER);

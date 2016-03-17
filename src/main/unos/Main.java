@@ -15,22 +15,13 @@ import es.pdsanchez.ai.ga.Population;
  */
 public class Main extends GeneticAlgorithm {
 
+    public Main(int chromosomeLength) {
+        super(chromosomeLength);
+    }
+
     @Override
-    public Population initPopulation() {
-        Population population = new Population(this.getPopulationSize());
-
-        // Create each individual in turn
-        int chromosomeLength = 50;
-        for (int individualCount = 0; individualCount < this.getPopulationSize(); individualCount++) {
-            // Create an individual, initializing its chromosome to the given length
-            Individual individual = new Individual(chromosomeLength);
-            // Randomize
-            individual.randomizeBinaryChromosome();
-            // Add individual to population
-            population.setIndividual(individualCount, individual);
-        }
-
-        return population;
+    public void populateChromosome(Individual individual) {
+        individual.randomizeBinaryChromosome();
     }
 
     @Override
@@ -68,7 +59,7 @@ public class Main extends GeneticAlgorithm {
     }
 
     public static void main(String[] args) {
-        Main ga = new Main();
+        Main ga = new Main(128);
         ga.setParentSelector(ParentSelector.TOURNAMENT);
         ga.setCrossoverSelector(CrossoverSelector.UNIFORM_CROSSOVER);
         ga.run();

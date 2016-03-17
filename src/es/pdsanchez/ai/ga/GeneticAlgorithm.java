@@ -30,6 +30,7 @@ import es.pdsanchez.ai.ga.crossover.TwoPointCrossover;
 import es.pdsanchez.ai.ga.crossover.UniformCrossover;
 import es.pdsanchez.ai.ga.mutation.BitFlipMutation;
 import es.pdsanchez.ai.ga.mutation.MutationInterface;
+import es.pdsanchez.ai.ga.mutation.SwapMutation;
 import es.pdsanchez.ai.ga.selector.ParentSelectionInterface;
 import es.pdsanchez.ai.ga.selector.ParentSelectionByTournament;
 import es.pdsanchez.ai.ga.selector.ParentSelectionByRoulette;
@@ -82,7 +83,8 @@ public abstract class GeneticAlgorithm {
 
     public enum MutationSelector {
 
-        BIT_FLIP_MUTATION(new BitFlipMutation());
+        BIT_FLIP_MUTATION(new BitFlipMutation()),
+        SWAP_MUTATION(new SwapMutation());
 
         private final MutationInterface selector;
 
@@ -111,6 +113,8 @@ public abstract class GeneticAlgorithm {
             return selector.crossover(parent1, parent2);
         }
     };
+    
+    private int chromosomeLength;
 
     private int populationSize;
 
@@ -142,7 +146,7 @@ public abstract class GeneticAlgorithm {
     private MutationSelector mutationSelector;
     private CrossoverSelector crossoverSelector;
 
-    public GeneticAlgorithm() {
+    private GeneticAlgorithm() {
         this.populationSize = DEFAULT_POPULATION_SIZE;
         this.mutationRate = DEFAULT_MUTATION_RATE;
         this.crossoverRate = DEFAULT_CROSSOVER_RATE;
@@ -153,13 +157,18 @@ public abstract class GeneticAlgorithm {
         this.mutationSelector = MutationSelector.BIT_FLIP_MUTATION; // bit flip by default
         this.crossoverSelector = CrossoverSelector.UNIFORM_CROSSOVER; // uniform crossover by default
     }
+    
+    public GeneticAlgorithm(int chromosomeLength) {
+        this();
+        this.chromosomeLength = chromosomeLength;
+    }
 
     /**
-     * Initialize population
-     *
-     * @return population The initial population generated
+     * Populate (and randomize) individual chromosome
+     * 
+     * @param individual the individual with the chromosome to populate
      */
-    public abstract Population initPopulation();
+    public abstract void populateChromosome(Individual individual);
 
     /**
      * Calculate fitness for an individual.
@@ -168,7 +177,7 @@ public abstract class GeneticAlgorithm {
      * @return double The fitness value for individual
      */
     public abstract double calcFitness(Individual individual);
-
+    
     /**
      * This method must be override.
      *
@@ -210,7 +219,7 @@ public abstract class GeneticAlgorithm {
      */
     public Individual run() {
         // Initialize population
-        Population population = this.initPopulation();
+        Population population = this._initPopulation();
 
         // Evaluate population
         this._evalPopulation(population);
@@ -244,6 +253,23 @@ public abstract class GeneticAlgorithm {
 
         return population.getFittest(0);
     }
+    
+    private Population _initPopulation() {
+        Population population = new Population(this.getPopulationSize());
+
+        // Create each individual in turn
+        for (int individualCount = 0; individualCount < this.getPopulationSize(); individualCount++) {
+            // Create an individual, initializing its chromosome to the given length
+            Individual individual = new Individual(chromosomeLength);
+            
+            this.populateChromosome(individual);
+            
+            // Add individual to population
+            population.setIndividual(individualCount, individual);
+        }
+
+        return population;
+    }
 
     private void _evalPopulation(Population population) {
         double populationFitness = 0;
@@ -251,7 +277,7 @@ public abstract class GeneticAlgorithm {
         // Loop over population evaluating individuals and suming population
         // fitness
         for (Individual individual : population.getIndividuals()) {
-            populationFitness += calcFitness(individual);
+            populationFitness += this.calcFitness(individual);
         }
 
         population.setPopulationFitness(populationFitness);
