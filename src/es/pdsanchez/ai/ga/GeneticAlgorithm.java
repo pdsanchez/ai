@@ -25,6 +25,7 @@
 package es.pdsanchez.ai.ga;
 
 import es.pdsanchez.ai.ga.crossover.CrossoverInterface;
+import es.pdsanchez.ai.ga.crossover.OrderedCrossover;
 import es.pdsanchez.ai.ga.crossover.SinglePointCrossover;
 import es.pdsanchez.ai.ga.crossover.TwoPointCrossover;
 import es.pdsanchez.ai.ga.crossover.UniformCrossover;
@@ -105,7 +106,8 @@ public abstract class GeneticAlgorithm {
 
         UNIFORM_CROSSOVER(new UniformCrossover()),
         SINGLE_POINT_CROSSOVER(new SinglePointCrossover()),
-        TWO_POINT_CROSSOVER(new TwoPointCrossover());
+        TWO_POINT_CROSSOVER(new TwoPointCrossover()),
+        ORDERED_CROSSOVER(new OrderedCrossover());
 
         private final CrossoverInterface selector;
 

@@ -96,6 +96,17 @@ public class Individual implements Comparable<Individual> {
             chromosome[i] = a;
         }
     }
+    
+    public boolean containsGene(int gene) {
+    	int chromosomeLength = this.chromosome.length;
+    	
+		for (int i = 0; i < chromosomeLength; i++) {
+			if (chromosome[i] == gene) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     /**
      * Gets individual's chromosome
